@@ -55,7 +55,7 @@ object matchloader extends App {
   println("matches")
   val seqMatches = readShapefile(matches, None, None).get
   var matchesCount = 0
-  val writer = CSVWriter.open("out.csv")
+  val writer = CSVWriter.open("truth.csv")
   seqMatches.foreach(m=>{
     val p1 = m._1.getCoordinates()(0)
     val l1 = index1.query(factory.createPoint(p1).getEnvelopeInternal)

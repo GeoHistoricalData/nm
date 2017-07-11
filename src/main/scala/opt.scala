@@ -124,13 +124,18 @@ object opt {
     println("compute sim 1")
     // compute similarity matrix
     val similarityMatrix1 = similarityMatrix(seq1, seq2)
+    println("compute sim 2")
     val similarityMatrix2 = similarityMatrix(seq2, seq1)
     val lengthArray1 = lengthArray(seq1)
     val lengthArray2 = lengthArray(seq2)
+    println("compute bin slack arrays")
     val delta1 = binarySlackArray(seq1.size, seq2.size, similarityMatrix2)
     val delta2 = binarySlackArray(seq2.size, seq1.size, similarityMatrix1)
+    println("compute submodel 1")
     val subModel1Links = subModel(seq1, seq2, similarityMatrix1, delta2, lengthArray1, lengthArray2)
+    println("compute submodel 2")
     val subModel2Links = subModel(seq2, seq1, similarityMatrix2, delta1, lengthArray2, lengthArray1)
+    println("compute model")
     subModel1Links ++ subModel2Links
   }
 }
