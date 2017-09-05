@@ -8,7 +8,6 @@ import scpsolver.problems.LinearProgram
 import scala.util.Try
 
 /**
-  * Created by julien on 24/05/17.
   */
 object opt {
   type Feature = (MultiLineString, Option[String], String)
@@ -53,9 +52,7 @@ object opt {
       } yield delta
     }.toArray
 
-    def lengthArray(s: Array[Feature]) = {
-      for (f <- s) yield f._1.getLength
-    }.toArray
+    def lengthArray(s: Array[Feature]) = for (f <- s) yield f._1.getLength
 
     def similarityMatrix(s1: Array[Feature], s2: Array[Feature]) = {
       for (i <- (0 until s1.size); j <- (0 until s2.size)) yield similarity(s1(i), s2(j))
@@ -76,9 +73,7 @@ object opt {
       }
     }
 
-    def directedHausdorf(l1: MultiLineString, l2: MultiLineString) = {
-      l1.getCoordinates.map(c => l2.distance(factory.createPoint(c))).max
-    }
+    def directedHausdorf(l1: MultiLineString, l2: MultiLineString) = l1.getCoordinates.map(c => l2.distance(factory.createPoint(c))).max
 
     def nameDissimilarity(n1: String, n2: String) = {
       val minLength = Math.min(n1.length, n2.length)
@@ -94,18 +89,9 @@ object opt {
       try {
         val reader = store.getFeatureReader
         try {
-//          val result = while (reader.hasNext) {
-//            val feature = reader.next
-//            println("feature")
-//            val geom = feature.getDefaultGeometry.asInstanceOf[MultiLineString]
-//            val name = feature.getAttribute(nameAttribute).toString
-//            val id = feature.getAttribute(idAttribute).toString
-//            (geom, name, id)
-//          }
           Try {
             val featureReader = Iterator.continually(reader.next).takeWhile(_ => reader.hasNext)
             val result = featureReader.map { feature =>
-              println("feature")
               val geom = feature.getDefaultGeometry.asInstanceOf[MultiLineString]
               val name = if (nameAttribute.isDefined) Some(feature.getAttribute(nameAttribute.get).toString) else None
               val id = feature.getAttribute(idAttribute).toString
