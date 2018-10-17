@@ -1,3 +1,5 @@
+package fr.ign.nm
+
 import better.files.File
 import com.vividsolutions.jts.geom.{GeometryFactory, MultiLineString}
 import org.geotools.data.shapefile.ShapefileDataStore
@@ -123,5 +125,9 @@ object opt {
     val subModel2Links = subModel(seq2, seq1, similarityMatrix2, delta1, lengthArray2, lengthArray1)
     println("compute model")
     subModel1Links ++ subModel2Links
+  }
+  def apply(directory: File, db1File: String, db2File: String, db1Name: String, db2Name: String, db1ID: String, db2ID: String,
+            a: Double, alpha: Double, beta: Double, gamma: Double, k: Double):List[(String, String)] = {
+    opt.buldMatches(directory / db1File, directory / db2File, Some(db1Name), Some(db2Name), db1ID, db2ID, a, alpha, beta, gamma, k).map { m => (m._1._3, m._2._3) }.toList
   }
 }
