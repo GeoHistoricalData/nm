@@ -1,7 +1,9 @@
 package fr.ign.nm
 
-import better.files.File
+import better.files._
+import com.github.tototoshi.csv.CSVWriter
 import com.vividsolutions.jts.geom.{GeometryFactory, MultiLineString}
+import fr.ign.nm.opttest._
 import org.geotools.data.shapefile.ShapefileDataStore
 import scpsolver.constraints.{LinearBiggerThanEqualsConstraint, LinearSmallerThanEqualsConstraint}
 import scpsolver.lpsolver.SolverFactory
@@ -124,10 +126,18 @@ object opt {
     println("compute submodel 2")
     val subModel2Links = subModel(seq2, seq1, similarityMatrix2, delta1, lengthArray2, lengthArray1)
     println("compute model")
-    subModel1Links ++ subModel2Links
+    subModel1Links ++ subModel2Links.map{case (a, b)=>(b, a)}
   }
-  def apply(directory: File, db1File: String, db2File: String, db1Name: String, db2Name: String, db1ID: String, db2ID: String,
+  def apply(directory: java.io.File, db1File: String, db2File: String, db1Name: String, db2Name: String, db1ID: String, db2ID: String,
             a: Double, alpha: Double, beta: Double, gamma: Double, k: Double):List[(String, String)] = {
-    opt.buldMatches(directory / db1File, directory / db2File, Some(db1Name), Some(db2Name), db1ID, db2ID, a, alpha, beta, gamma, k).map { m => (m._1._3, m._2._3) }.toList
+    opt.buldMatches(new java.io.File(directory, db1File).toScala, new java.io.File(directory, db2File).toScala, Option(db1Name), Option(db2Name), db1ID, db2ID, a, alpha, beta, gamma, k).map { m => (m._1._3, m._2._3) }.toList
+  }
+
+  def apply(directory: java.io.File, db1File: String, db2File: String, db1Name: String, db2Name: String, db1ID: String, db2ID: String,
+            a: Double, alpha: Double, beta: Double, gamma: Double, k: Double, out: File) = {
+    val matches = opt.buldMatches(new java.io.File(directory, db1File).toScala, new java.io.File(directory, db2File).toScala, Option(db1Name), Option(db2Name), db1ID, db2ID, a, alpha, beta, gamma, k).map { m => (m._1._3, m._2._3) }.toList
+    val writer = CSVWriter.open(out.toJava)
+    matches.foreach { m => writer.writeRow(List(m._1, m._2)) }
+    writer.close
   }
 }

@@ -40,4 +40,5 @@ object matchertest extends App {
   println(scores.fscore(elem)(matches))
   //val m = hmmmatching.impl.HMMMatchingLauncher.runStringFromDouble(fileNetwork1,fileNetwork2,idAttribute1,idAttribute2,selection,stroke_length, resampling, lpsolving)
   //println(m)
+  //whole file: 0.9398613272958822
 }

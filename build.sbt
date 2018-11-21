@@ -8,7 +8,7 @@ scalaVersion := "2.12.6"
 
 val monocleVersion = "1.4.0"
 
-val geotoolsVersion = "19.1"
+val geotoolsVersion = "18.4"
 
 //val jtsVersion = "1.14.0"
 
@@ -49,6 +49,7 @@ libraryDependencies ++= Seq (
     ExclusionRule(organization = "postgresql"),
     ExclusionRule(organization = "net.java.dev.jna"),
     ExclusionRule(organization = "org.postgresql"),
+    ExclusionRule(organization = "org.geotools"),
     ExclusionRule(organization = "fr.ign.cogit", name = "geoxygene-ontology"),
     ExclusionRule(organization = "fr.ign.cogit", name = "geoxygene-sig3d")
   )
@@ -66,7 +67,11 @@ OsgiKeys.exportPackage := Seq("fr.ign.nm.*")
 
 OsgiKeys.importPackage := Seq("*;resolution:=optional")
 
-OsgiKeys.privatePackage := Seq("!scala.*,!java.*,*")
+//OsgiKeys.privatePackage := Seq("!scala.*,!java.*,*")
+OsgiKeys.privatePackage := Seq("""
+|!scala.*,!java.*,META-INF.*;-split-package:=merge-first,
+|*;-split-package:=merge-first
+|""".stripMargin)
 
 //OsgiKeys.embeddedJars := (Keys.externalDependencyClasspath in Compile).value map (_.data) filter (x=>(x.name.startsWith("gt-")))
 //||(x.name.startsWith("lpsolvesolverpack"))
