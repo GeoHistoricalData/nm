@@ -1,0 +1,34 @@
+import _file_.HMMMatcher._
+import _file_.Scores._
+
+// Execute the workflow
+// Define the population (10) and the number of generations (100).
+// Define the inputs and their respective variation bounds.
+// Define the objectives to minimize.
+// Assign 1 percent of the computing time to reevaluating
+// parameter settings to eliminate over-evaluated individuals.
+val nsga2 = 
+  NSGA2(
+    mu = 100,
+    genome =  Seq(
+              selection in (0.0, 50.0),
+              stroke_length in (1.0, 11.0),
+              resampling in (0.0, 1.0),
+              lpsolving in (0.0, 1.0)
+              ),
+    objectives = Seq(score),
+    stochastic = Stochastic(seed = myseed, reevaluate = 0.1)
+  )
+val evolution =
+  SteadyStateEvolution(
+    algorithm = nsga2,
+    evaluation = (hmmmatcherTask -- scoresTask),
+    parallelism = 10,
+    termination = 500
+)
+
+// Define a hook to save the Pareto frontier
+val savePopulationHook = SavePopulationHook(evolution, workDirectory / "results_calibration")
+val display = DisplayHook("Generation ${" + evolution.generation.name + "}")
+// Plug everything together to create the workflow
+(evolution on env hook savePopulationHook)

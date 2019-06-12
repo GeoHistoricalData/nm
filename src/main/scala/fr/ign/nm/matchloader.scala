@@ -2,9 +2,9 @@ package fr.ign.nm
 
 import better.files.File
 import com.github.tototoshi.csv._
-import com.vividsolutions.jts.geom._
-import com.vividsolutions.jts.index.strtree.{ItemBoundable, ItemDistance, STRtree}
 import org.geotools.data.shapefile.ShapefileDataStore
+import org.locationtech.jts.geom.{Coordinate, Envelope, GeometryFactory, LineString, MultiLineString}
+import org.locationtech.jts.index.strtree.{ItemBoundable, ItemDistance, STRtree}
 
 import scala.util.Try
 
@@ -32,13 +32,16 @@ object matchloader extends App {
       while (reader.hasNext) {
         val feature = reader.next()
         val g = feature.getDefaultGeometry
-        val geom = if (g.isInstanceOf[MultiLineString]) g.asInstanceOf[MultiLineString] else factory.createMultiLineString(Array(g.asInstanceOf[LineString]))
+        val geom = g match {
+          case mls: MultiLineString => mls
+          case _ => factory.createMultiLineString(Array(g.asInstanceOf[LineString]))
+        }
         val name = if (nameAttribute.isDefined) Some(feature.getAttribute(nameAttribute.get).toString) else None
         val id = if (idAttribute.isDefined) Some(feature.getAttribute(idAttribute.get).toString) else None
         result.append((geom, name, id))
       }
       println(result.size)
-      reader.close
+      reader.close()
       Try{result.toArray}
 //      try {
 //        Try {
@@ -57,7 +60,7 @@ object matchloader extends App {
 //          result
 //        }
 //      } finally reader.close
-    } finally store.dispose
+    } finally store.dispose()
   }
   def createIndex(seq: Array[(MultiLineString, Option[String], Option[String])]) = {
     val index = new STRtree()
@@ -99,48 +102,48 @@ object matchloader extends App {
   }
   seqMatches.foreach(m=>{
     val geom = m._1
-    if (geom.getCoordinates.size != 2) println("Coordinates: " + geom.getCoordinates.size)
-    val p1 = if (revertGeometries) m._1.getCoordinates().last else m._1.getCoordinates().head
+    if (geom.getCoordinates.length != 2) println("Coordinates: " + geom.getCoordinates.length)
+    val p1 = if (revertGeometries) m._1.getCoordinates.last else m._1.getCoordinates.head
     val l1 = getMatches(p1, index1)
-    val p2 = if (revertGeometries) m._1.getCoordinates().head else m._1.getCoordinates().last
+    val p2 = if (revertGeometries) m._1.getCoordinates.head else m._1.getCoordinates.last
     val l2 = getMatches(p2, index2)
-    if (l1.size != 1) {
-      println(l1.size + " points in db1 for " + factory.createPoint(p1).toText)
+    if (l1.length!= 1) {
+      println(l1.length + " points in db1 for " + factory.createPoint(p1).toText)
       val envelope = new Envelope(p1)
       envelope.expandBy(10.0*tolerance)
       println(factory.toGeometry(envelope))
       val l = index1.query(envelope).toArray.map(_.asInstanceOf[(MultiLineString, Option[String], Option[String])])
-      println(l.size)
+      println(l.length)
       l1.foreach {
         v=> println(v._3)
       }
     }
-    if (l2.size != 1) {
-      println(l2.size + " points in db2 for " + factory.createPoint(p2).toText)
+    if (l2.length!= 1) {
+      println(l2.length+ " points in db2 for " + factory.createPoint(p2).toText)
       val envelope = new Envelope(p2)
       envelope.expandBy(tolerance * 10)
       val l = index2.query(envelope).toArray.map(_.asInstanceOf[(MultiLineString, Option[String], Option[String])])
-      println(l.size)
+      println(l.length)
       l2.foreach {
         v=> println(v._3)
       }
     }
-    if ((l1.size != 1) || (l2.size != 1)) {
+    if ((l1.length!= 1) || (l2.length!= 1)) {
       val l1 = getMatches(p2, index1)
       val l2 = getMatches(p1, index2)
-      if (l1.size != 1) {
-        println(l1.size + " points in db1 for " + factory.createPoint(p2).toText + " after invert")
+      if (l1.length!= 1) {
+        println(l1.length+ " points in db1 for " + factory.createPoint(p2).toText + " after invert")
         l1.foreach {
           v=> println(v._3)
         }
       }
-      if (l2.size != 1) {
-        println(l2.size + " points in db2 for " + factory.createPoint(p1).toText + " after invert")
+      if (l2.length != 1) {
+        println(l2.length + " points in db2 for " + factory.createPoint(p1).toText + " after invert")
         l2.foreach {
           v=> println(v._3)
         }
       }
-      if ((l1.size == 1) && (l2.size == 1)) {
+      if ((l1.length == 1) && (l2.length == 1)) {
         println("invert worked")
         val m1 = l1(0)
         val m2 = l2(0)
@@ -151,7 +154,7 @@ object matchloader extends App {
         println("FUCK")
       }
     } else {
-      if ((l1.size == 1) && (l2.size == 1)) {
+      if ((l1.length == 1) && (l2.length == 1)) {
         val m1 = l1(0)
         val m2 = l2(0)
         //println("match " + m1._3 + " - " + m2._3)

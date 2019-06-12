@@ -8,13 +8,15 @@ scalaVersion := "2.12.6"
 
 val monocleVersion = "1.4.0"
 
-val geotoolsVersion = "18.4"
+val geotoolsVersion = "21.0"
 
 //val jtsVersion = "1.14.0"
 
 //val breezeVersion = "0.13.1"
 
 val scpVersion = "20180615"
+
+val hmmVersion = "0.0.2-SNAPSHOT"
 
 //val morphogenesisVersion = "1.0-SNAPSHOT"
 
@@ -43,7 +45,7 @@ libraryDependencies ++= Seq (
   "org.scpsolver" % "scpsolver" % scpVersion,
   "org.scpsolver" % "lpsolvesolverpack" % scpVersion,
   //"fr.ign.cogit" % "morphogenesis" % morphogenesisVersion
-  "fr.ign.cogit" % "HMMSpatialNetworkMatcher" % "0.0.1-SNAPSHOT"
+  "fr.ign.cogit" % "HMMSpatialNetworkMatcher" % hmmVersion
     excludeAll(
     ExclusionRule(organization = "org.neo4j"),
     ExclusionRule(organization = "postgresql"),
@@ -67,15 +69,25 @@ OsgiKeys.exportPackage := Seq("fr.ign.nm.*")
 
 OsgiKeys.importPackage := Seq("*;resolution:=optional")
 
-//OsgiKeys.privatePackage := Seq("!scala.*,!java.*,*")
-OsgiKeys.privatePackage := Seq("""
-|!scala.*,!java.*,META-INF.*;-split-package:=merge-first,
-|*;-split-package:=merge-first
-|""".stripMargin)
+OsgiKeys.privatePackage := Seq("!scala.*,!java.*,*")
+//OsgiKeys.privatePackage := Seq("""
+//|!scala.*,!java.*,META-INF.*;-split-package:=merge-first,
+//|*;-split-package:=merge-first
+//|""".stripMargin)
 
 //OsgiKeys.embeddedJars := (Keys.externalDependencyClasspath in Compile).value map (_.data) filter (x=>(x.name.startsWith("gt-")))
 //||(x.name.startsWith("lpsolvesolverpack"))
 
-OsgiKeys.requireCapability := ""
+OsgiKeys.requireCapability := """osgi.ee; osgi.ee="JavaSE";version:List="1.8,1.9""""
 
-OsgiKeys.additionalHeaders := Map("Bundle-NativeCode" -> "lib/liblpsolve55j_x64.so ; osname = Linux ; processor = x86-64")
+OsgiKeys.additionalHeaders :=  Map(
+  "Specification-Title" -> "Spec Title",
+  "Specification-Version" -> "Spec Version",
+  "Specification-Vendor" -> "IGN",
+  "Implementation-Title" -> "Impl Title",
+  "Implementation-Version" -> "Impl Version",
+  "Implementation-Vendor" -> "IGN",
+  "Bundle-NativeCode" -> "lib/liblpsolve55j_x64.so ; osname = Linux ; processor = x86-64"
+)
+
+OsgiKeys.embeddedJars := (Keys.externalDependencyClasspath in Compile).value map (_.data) filter (f=> (f.getName startsWith "gt-"))

@@ -1,0 +1,16 @@
+import _file_.HMMMatcher._
+
+val truth = Val[File]
+val matches = Val[List[(String,String)]]
+val score = Val[Double]
+
+val scoresTask = ScalaTask("val score = 1.0 - fr.ign.nm.scores.fscore(truth)(matches)") set (
+  plugins += pluginsOf(fr.ign.nm.scores),
+  inputs += (truth,matches),
+  truth := workDirectory / "truth.csv",
+  outputs += score
+) 
+
+val scoresDisplayHook = DisplayHook("result = ${score}")
+
+((hmmmatcherTask on env) -- (scoresTask on env)) hook scoresDisplayHook

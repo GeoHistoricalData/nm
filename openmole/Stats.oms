@@ -1,0 +1,24 @@
+import _file_.HMMMatcher._
+import _file_.Scores._
+
+val evolution$generation = Val[Int]
+val selection = Val[Double]
+val stroke_length = Val[Double]
+val resampling = Val[Double]
+val lpsolving = Val[Double]
+val score = Val[Double]
+val evolution$samples = Val[Int]
+
+val result = Val[Double]
+
+val stats =
+  ScalaTask("val result = score") set (
+    inputs += (evolution$generation,selection,stroke_length,resampling,lpsolving,score,evolution$samples),
+    outputs += result
+  )
+
+val h = ToStringHook(selection, score)
+
+val s = CSVSource(workDirectory / "results/selection/population211.csv")
+
+(stats source s hook h)

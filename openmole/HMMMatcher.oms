@@ -1,0 +1,40 @@
+val myseed = Val[Long]
+val dataDir = Val[File]
+val fileNetwork1 = Val[String]
+val fileNetwork2 = Val[String]
+val idAttribute1 = Val[String]
+val idAttribute2 = Val[String]
+val selection = Val[Double]
+val stroke_length = Val[Double]
+val resampling = Val[Double]
+val lpsolving = Val[Double]
+val matches = Val[List[(String,String)]]
+
+val env = EGIEnvironment(
+  "vo.complex-systems.eu",
+  cpuTime = 4 hours,
+  openMOLEMemory = 2048 megabytes,
+  debug = true
+)
+
+val hmmmatcherTask = ScalaTask("""
+  |import fr.ign.nm._
+  |val matches = withThreadClassLoader(classLoader(fr.ign.nm.Hmmmatcher))(Hmmmatcher(dataDir,fileNetwork1,fileNetwork2,idAttribute1,idAttribute2,selection,stroke_length,resampling,lpsolving,myseed))""".stripMargin) set (
+  plugins += pluginsOf(fr.ign.nm.Hmmmatcher),
+  inputs += (dataDir,fileNetwork1,fileNetwork2,idAttribute1,idAttribute2,selection,stroke_length,resampling,lpsolving,myseed),
+  outputs += matches,
+  dataDir := workDirectory / "data",
+  fileNetwork1 := "snapshot_1825.0_1836.0_edges.shp",
+  fileNetwork2 := "snapshot_1784.0_1791.0_edges.shp",
+  idAttribute1 := "ID",
+  idAttribute2 := "ID",
+  selection := 10.0,
+  stroke_length := 5.0,
+  resampling := 0.0,
+  lpsolving := 1.0,
+  myseed := 42
+)
+
+val displayHook = DisplayHook("result = ${matches}")
+
+hmmmatcherTask hook displayHook on env

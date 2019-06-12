@@ -1,13 +1,13 @@
 package fr.ign.nm
 
-import com.github.tototoshi.csv.{CSVReader, CSVWriter}
+import com.github.tototoshi.csv.CSVReader
 
 object MatchCompare extends App {
   val reader1 = CSVReader.open("manuel.csv")
   val reader2 = CSVReader.open("test_simplified.csv")
-  val l1 = reader1.all().map(l=>(l(0).trim,l(1).trim))
+  val l1 = reader1.all().map(l=>(l.head.trim,l(1).trim))
   println("matches (auto): " + l1.size)
-  val l2 = reader2.all().map(l=>(l(0).trim,l(1).trim))
+  val l2 = reader2.all().map(l=>(l.head.trim,l(1).trim))
   println("matches (manual): " + l2.size)
   scores.compute(l1)(l2)
   val falseP = scores.falsePositives(l1, l2)

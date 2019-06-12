@@ -2,9 +2,8 @@ package fr.ign.nm
 
 import better.files._
 import com.github.tototoshi.csv.CSVWriter
-import com.vividsolutions.jts.geom.{GeometryFactory, MultiLineString}
-import fr.ign.nm.opttest._
 import org.geotools.data.shapefile.ShapefileDataStore
+import org.locationtech.jts.geom.{GeometryFactory, MultiLineString}
 import scpsolver.constraints.{LinearBiggerThanEqualsConstraint, LinearSmallerThanEqualsConstraint}
 import scpsolver.lpsolver.SolverFactory
 import scpsolver.problems.LinearProgram
@@ -22,35 +21,35 @@ object opt {
                  similarity: Array[Double], delta: Seq[Double], length1: Array[Double], length2: Array[Double]) = {
       val lp = new LinearProgram(similarity)
       lp.setMinProblem(false)
-      for (i <- (0 until lp.getIsboolean().length)) lp.getIsboolean()(i) = true
+      for (i <- lp.getIsboolean.indices) lp.getIsboolean()(i) = true
       // for all i: (sum of zij for all j <= 1)
-      for (i <- (0 until s1.size)) {
-        val a = Array.fill[Double](i * s2.size)(0.0)
-        val b = Array.fill[Double](s2.size)(1.0)
-        val c = Array.fill[Double]((s1.size - i - 1) * s2.size)(0.0)
+      for (i <- s1.indices) {
+        val a = Array.fill[Double](i * s2.length)(0.0)
+        val b = Array.fill[Double](s2.length)(1.0)
+        val c = Array.fill[Double]((s1.length - i - 1) * s2.length)(0.0)
         val weights = a ++ b ++ c
         lp.addConstraint(new LinearSmallerThanEqualsConstraint(weights, 1.0, "c1_" + i))
       }
       // for all j: (sum of zij for all i + delta_j >= 1)
-      for (j <- (0 until s2.size)) {
-        val weights = (0 until s1.size * s2.size).toArray.map { i => if (((i - j) % s2.size) == 0) 1.0 else 0.0 }
-        lp.addConstraint(new LinearBiggerThanEqualsConstraint(weights, (1.0 - delta(j)), "c2_" + j))
+      for (j <- s2.indices) {
+        val weights = (0 until s1.length * s2.length).toArray.map { i => if (((i - j) % s2.length) == 0) 1.0 else 0.0 }
+        lp.addConstraint(new LinearBiggerThanEqualsConstraint(weights, 1.0 - delta(j), "c2_" + j))
       }
       // for all j: (sum of zij * li for all i <= kj*beta)
-      for (j <- (0 until s2.size)) {
-        val weights = (0 until s1.size * s2.size).toArray.map { i => if (((i - j) % s2.size) == 0) length1(i / s2.size) else 0.0 }
+      for (j <- s2.indices) {
+        val weights = (0 until s1.length * s2.length).toArray.map { i => if (((i - j) % s2.length) == 0) length1(i / s2.length) else 0.0 }
         lp.addConstraint(new LinearSmallerThanEqualsConstraint(weights, beta * length2(j), "c3_" + j))
       }
       val solver = SolverFactory.newDefault()
       val solution = solver.solve(lp)
       System.out.println("solution " + solution.length)
-      solution.zipWithIndex.filter(_._1 == 1.0).map { case (v: Double, i: Int) => (s1(i / s2.size), s2(i % s2.size)) }
+      solution.zipWithIndex.filter(_._1 == 1.0).map { case (v: Double, i: Int) => (s1(i / s2.length), s2(i % s2.length)) }
     }
 
     def binarySlackArray(p: Int, q: Int, similarity: Array[Double]) = {
       for {
-        i <- (0 until p)
-        j <- (0 until q)
+        i <- 0 until p
+        j <- 0 until q
         distance = similarity(i + j * p)
         delta = if (distance > gamma) 0.0 else 1.0
       } yield delta
@@ -59,7 +58,7 @@ object opt {
     def lengthArray(s: Array[Feature]) = for (f <- s) yield f._1.getLength
 
     def similarityMatrix(s1: Array[Feature], s2: Array[Feature]) = {
-      for (i <- (0 until s1.size); j <- (0 until s2.size)) yield similarity(s1(i), s2(j))
+      for (i <- s1.indices; j <- s2.indices) yield similarity(s1(i), s2(j))
     }.toArray
 
     def similarity(f1: Feature, f2: Feature) = {
@@ -67,12 +66,12 @@ object opt {
       if (d > a) {
         0.0
       } else {
-        if (!f1._2.isDefined || !f2._2.isDefined) {
+        if (f1._2.isEmpty || f2._2.isEmpty) {
           a - d
         } else {
           val nd = nameDissimilarity(f1._2.get, f2._2.get)
           if (nd < 0) a - d
-          else a - (d + nd) / 2.0;
+          else a - (d + nd) / 2.0
         }
       }
     }
@@ -103,8 +102,8 @@ object opt {
             }.toArray
             result
           }
-        } finally reader.close
-      } finally store.dispose
+        } finally reader.close()
+      } finally store.dispose()
     }
 
     println("read shp 1")
@@ -119,14 +118,14 @@ object opt {
     val lengthArray1 = lengthArray(seq1)
     val lengthArray2 = lengthArray(seq2)
     println("compute bin slack arrays")
-    val delta1 = binarySlackArray(seq1.size, seq2.size, similarityMatrix2)
-    val delta2 = binarySlackArray(seq2.size, seq1.size, similarityMatrix1)
+    val delta1 = binarySlackArray(seq1.length, seq2.length, similarityMatrix2)
+    val delta2 = binarySlackArray(seq2.length, seq1.length, similarityMatrix1)
     println("compute submodel 1")
     val subModel1Links = subModel(seq1, seq2, similarityMatrix1, delta2, lengthArray1, lengthArray2)
     println("compute submodel 2")
     val subModel2Links = subModel(seq2, seq1, similarityMatrix2, delta1, lengthArray2, lengthArray1)
     println("compute model")
-    subModel1Links ++ subModel2Links.map{case (a, b)=>(b, a)}
+    subModel1Links ++ subModel2Links.map{case (la, lb)=>(lb, la)}
   }
   def apply(directory: java.io.File, db1File: String, db2File: String, db1Name: String, db2Name: String, db1ID: String, db2ID: String,
             a: Double, alpha: Double, beta: Double, gamma: Double, k: Double):List[(String, String)] = {
