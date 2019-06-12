@@ -22,9 +22,7 @@ val hmmVersion = "0.0.2-SNAPSHOT"
 
 //crossSbtVersions := Vector("0.13.16", "1.0.2")
 
-//resolvers -= DefaultMavenRepository
-
-resolvers := Seq(
+resolvers ++= Seq(
   "osgeo" at "http://download.osgeo.org/webdav/geotools/",
   "geosolutions" at "http://maven.geo-solutions.it/",
   "geotoolkit" at "http://maven.geotoolkit.org/",
@@ -36,6 +34,7 @@ resolvers += Resolver.typesafeRepo("releases")
 resolvers += "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"
 
 libraryDependencies ++= Seq (
+  "javax.media" % "jai_core" % "1.1.3" from "http://download.osgeo.org/webdav/geotools/javax/media/jai_core/1.1.3/jai_core-1.1.3.jar",
   "org.geotools" % "gt-referencing" % geotoolsVersion,
   "org.geotools" % "gt-shapefile" % geotoolsVersion,
   "org.geotools" % "gt-epsg-wkt" % geotoolsVersion,
