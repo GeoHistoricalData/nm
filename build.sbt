@@ -22,6 +22,8 @@ val hmmVersion = "0.0.2-SNAPSHOT"
 
 //crossSbtVersions := Vector("0.13.16", "1.0.2")
 
+resolvers -= DefaultMavenRepository
+
 resolvers ++= Seq(
   "osgeo" at "http://download.osgeo.org/webdav/geotools/",
   "geosolutions" at "http://maven.geo-solutions.it/",
