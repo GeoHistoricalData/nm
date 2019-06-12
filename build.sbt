@@ -34,7 +34,6 @@ resolvers += Resolver.typesafeRepo("releases")
 resolvers += "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"
 
 libraryDependencies ++= Seq (
-  "javax.media" % "jai_core" % "1.1.3" from "http://download.osgeo.org/webdav/geotools/javax/media/jai_core/1.1.3/jai_core-1.1.3.jar",
   "org.geotools" % "gt-referencing" % geotoolsVersion,
   "org.geotools" % "gt-shapefile" % geotoolsVersion,
   "org.geotools" % "gt-epsg-wkt" % geotoolsVersion,
@@ -56,8 +55,12 @@ libraryDependencies ++= Seq (
     ExclusionRule(organization = "org.postgresql"),
     ExclusionRule(organization = "org.geotools"),
     ExclusionRule(organization = "fr.ign.cogit", name = "geoxygene-ontology"),
-    ExclusionRule(organization = "fr.ign.cogit", name = "geoxygene-sig3d")
-  )
+    ExclusionRule(organization = "fr.ign.cogit", name = "geoxygene-sig3d"),
+    ExclusionRule(organization = "javax.media")
+  ),
+  "javax.media" % "jai_core" % "1.1.3" from "http://download.osgeo.org/webdav/geotools/javax/media/jai_core/1.1.3/jai_core-1.1.3.jar",
+  "javax.media" % "jai_codec" % "1.1.3" from "http://download.osgeo.org/webdav/geotools/javax/media/jai_codec/1.1.3/jai_codec-1.1.3.jar",
+  "javax.media" % "jai_imageio" % "1.1" from "http://download.osgeo.org/webdav/geotools/javax/media/jai_imageio/1.1/jai_imageio-1.1.jar"
 )
 
 //updateOptions := updateOptions.value.withLatestSnapshots(false)
