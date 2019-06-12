@@ -4,4 +4,4 @@ scala:
 
 before_script:
   - openssl s_client -connect forge-cogit.ign.fr:443 </dev/null 2>/dev/null|openssl x509 -outform PEM >mycertfile.pem
-  - keytool -v -import -noprompt -trustcacerts -alias mavensrv -file mycertfile.pem -keystore /etc/ssl/certs/java/cacerts -storepass changeit
+  - sudo keytool -v -import -noprompt -trustcacerts -alias mavensrv -file mycertfile.pem -keystore /etc/ssl/certs/java/cacerts -storepass changeit
