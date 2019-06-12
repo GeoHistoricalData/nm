@@ -26,6 +26,7 @@ resolvers ++= Seq(
   "osgeo" at "http://download.osgeo.org/webdav/geotools/",
   "geosolutions" at "http://maven.geo-solutions.it/",
   "geotoolkit" at "http://maven.geotoolkit.org/",
+  "Imagej" at "http://maven.imagej.net/content/repositories/public",
   "ign-releases" at "https://forge-cogit.ign.fr/nexus/content/repositories/releases/",
   "ign-snapshots" at "https://forge-cogit.ign.fr/nexus/content/repositories/snapshots/"
 )
