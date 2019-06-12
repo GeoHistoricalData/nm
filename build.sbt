@@ -26,7 +26,8 @@ resolvers ++= Seq(
   "osgeo" at "http://download.osgeo.org/webdav/geotools/",
   "geosolutions" at "http://maven.geo-solutions.it/",
   "geotoolkit" at "http://maven.geotoolkit.org/",
-  "ign-releases" at "https://forge-cogit.ign.fr/nexus/content/repositories/releases/"
+  "ign-releases" at "https://forge-cogit.ign.fr/nexus/content/repositories/releases/",
+  "ign-snapshots" at "https://forge-cogit.ign.fr/nexus/content/repositories/snapshots/"
 )
 resolvers += Resolver.typesafeRepo("releases")
 resolvers += "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"
